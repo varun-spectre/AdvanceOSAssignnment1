@@ -20,15 +20,18 @@ SECTIONS
     *(.data) 
     edata = .; 
   }
+
   .rodata : 
   {
     *(.rodata) 
     erodata = .; 
   }
+
   .bss : 
   {
     *(.bss) 
     ebss = .; 
   }
+  
   end = .;
 }
