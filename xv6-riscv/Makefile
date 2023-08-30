@@ -131,5 +131,5 @@ qemu: $B/bootloader
 
 qemu-gdb: $B/bootloader .gdbinit
 	@echo "*** Now run 'gdb' in another window." 1>&2
-	$(QEMU) $(QEMUOPTS) -S $(QEMUGDB)
+	$(QEMU) $(QEMUOPTS) $(QEMUOPTS1) -S $(QEMUGDB)
 
