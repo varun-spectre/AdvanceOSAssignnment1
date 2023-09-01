@@ -29,7 +29,25 @@ uint64 find_kernel_load_addr(enum kernel ktype)
 uint64 find_kernel_size(enum kernel ktype)
 {
     /* CSE 536: Get kernel binary size from headers */
-    return 0;
+    kernel_elfhdr = (struct elfhdr *)RAMDISK;
+
+    uint64 phoff = kernel_elfhdr->phoff;
+    uint64 phsize = kernel_elfhdr->phentsize;
+    uint16 phnum = kernel_elfhdr->phnum;
+
+    uint64 total_size = 0;
+
+    // Calculate the total size by summing up the filesz of all program headers
+    for (int i = 0; i < phnum; i++)
+    {
+        uint64 phdr_addr = RAMDISK + phoff + i * phsize;
+        struct proghdr *phdr = (struct proghdr *)phdr_addr;
+        total_size += phdr->filesz;
+    }
+
+    return total_size;
+
+
 }
 
 uint64 find_kernel_entry_addr(enum kernel ktype)

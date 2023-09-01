@@ -104,21 +104,27 @@ void start()
   #endif
 
   /* CSE 536: Verify if the kernel is untampered for secure boot */
-  if (!is_secure_boot()) {
+  //if (!is_secure_boot()) {
     /* Skip loading since we should have booted into a recovery kernel 
      * in the function is_secure_boot() */
-    goto out;
-  }
+    //goto out;
+  //}
   
   /* CSE 536: Load the NORMAL kernel binary (assuming secure boot passed). */
-  // uint64 kernel_load_addr       = find_kernel_load_addr(NORMAL);
-  // uint64 kernel_binary_size     = find_kernel_size(NORMAL);     
+  uint64 kernel_load_addr       = find_kernel_load_addr(NORMAL);
+  uint64 kernel_binary_size     = find_kernel_size(NORMAL);     
   uint64 kernel_entry           = find_kernel_entry_addr(NORMAL);
-  
+ if(kernel_load_addr==kernel_entry) {
+ panic("dwef");
+ }
+ if(kernel_binary_size==278088){
+ panic("matched");
+ }
+  panic("in panic"); 
   /* CSE 536: Write the correct kernel entry point */
   w_mepc((uint64) kernel_entry);
  
- out:
+ //out:
   /* CSE 536: Provide system information to the kernel. */
 
   /* CSE 536: Send the observed hash value to the kernel (using sys_info_ptr) */
@@ -130,8 +136,8 @@ void start()
 
   // return address fix
   uint64 addr = (uint64) panic;
-  asm volatile("mv ra, %0" : : "r" (addr));
+ asm volatile("mv ra, %0" : : "r" (addr));
 
   // switch to supervisor mode and jump to main().
-  asm volatile("mret");
+ asm volatile("mret");
 }
