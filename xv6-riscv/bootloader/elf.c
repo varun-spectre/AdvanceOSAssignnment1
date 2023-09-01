@@ -35,11 +35,12 @@ uint64 find_kernel_size(enum kernel ktype)
     uint64 total_size = start_of_section_headers + size_of_section_headers;
 
     return total_size;
-
 }
 
 uint64 find_kernel_entry_addr(enum kernel ktype)
 {
     /* CSE 536: Get kernel entry point from headers */
-    return 0;
+    kernel_elfhdr = (struct elfhdr *)RAMDISK;
+    // return entry point
+    return kernel_elfhdr->entry;
 }
