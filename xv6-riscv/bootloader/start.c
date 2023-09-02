@@ -44,25 +44,25 @@ void panic(char *s)
  * when hash verification fails. */
 void setup_recovery_kernel(void)
 {
-  uint64 kernel_load_addr = find_kernel_load_addr(RECOVERY);
-  uint64 kernel_binary_size = find_kernel_size(RECOVERY);
+  uint64 rec_kernel_load_addr = find_kernel_load_addr(RECOVERY);
+  uint64 rec_kernel_binary_size = find_kernel_size(RECOVERY);
 
   struct buf b;
-  uint64 num_blocks = kernel_binary_size / FSSIZE;
-  for (int i = 0; i < num_blocks; i++)
+  uint64 rec_num_blocks = rec_kernel_binary_size / FSSIZE;
+  for (int i = 0; i < rec_num_blocks; i++)
   {
     // ignoring the first 4 (4*1024) blocks as it is elf headers
     if (i < 4)
       continue;
     b.blockno = i;
     kernel_copy(RECOVERY, &b);
-    memmove((void *)kernel_load_addr + ((i - 4) * BSIZE), b.data, BSIZE);
+    memmove((void *)rec_kernel_load_addr + ((i - 4) * BSIZE), b.data, BSIZE);
   }
 
-  uint64 kernel_entry = find_kernel_entry_addr(RECOVERY);
+  uint64 rec_kernel_entry = find_kernel_entry_addr(RECOVERY);
 
   /* CSE 536: Write the correct kernel entry point */
-  w_mepc((uint64)kernel_entry);
+  w_mepc((uint64)rec_kernel_entry);
 }
 
 /* CSE 536: Function verifies if NORMAL kernel is expected or tampered. */
@@ -84,6 +84,7 @@ bool is_secure_boot(void)
       continue;
     b.blockno = i;
     kernel_copy(NORMAL, &b);
+    memmove((void *)kernel_load_addr + ((i - 4) * BSIZE), b.data, BSIZE);
     sha256_update(&sha256_ctx, (const unsigned char *)b.data, BSIZE);
   }
   sha256_final(&sha256_ctx, sys_info_ptr->observed_kernel_measurement);
@@ -152,20 +153,20 @@ void start()
   }
 
   /* CSE 536: Load the NORMAL kernel binary (assuming secure boot passed). */
-  uint64 kernel_load_addr = find_kernel_load_addr(NORMAL);
-  uint64 kernel_binary_size = find_kernel_size(NORMAL);
+  //uint64 kernel_load_addr = find_kernel_load_addr(NORMAL);
+  //uint64 kernel_binary_size = find_kernel_size(NORMAL);
 
-  struct buf b;
-  uint64 num_blocks = kernel_binary_size / FSSIZE;
-  for (int i = 0; i < num_blocks; i++)
-  {
+  //struct buf b;
+  //uint64 num_blocks = kernel_binary_size / FSSIZE;
+  //for (int i = 0; i < num_blocks; i++)
+  //{
     // ignoring the first 4 (4*1024) blocks as it is elf headers
-    if (i < 4)
-      continue;
-    b.blockno = i;
-    kernel_copy(NORMAL, &b);
-    memmove((void *)kernel_load_addr + ((i - 4) * BSIZE), b.data, BSIZE);
-  }
+    //if (i < 4)
+      //continue;
+    //b.blockno = i;
+    //kernel_copy(NORMAL, &b);
+    //memmove((void *)kernel_load_addr + ((i - 4) * BSIZE), b.data, BSIZE);
+  //}
 
   uint64 kernel_entry = find_kernel_entry_addr(NORMAL);
 
