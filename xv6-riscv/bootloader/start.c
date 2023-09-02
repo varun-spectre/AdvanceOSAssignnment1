@@ -72,7 +72,7 @@ bool is_secure_boot(void)
 void start()
 {
   /* CSE 536: Define the system information table's location. */
-  sys_info_ptr = (struct sys_info *)0x0;
+  sys_info_ptr = (struct sys_info *)0x80080000;
 
   // keep each CPU's hartid in its tp register, for cpuid().
   int id = r_mhartid();
@@ -107,11 +107,11 @@ void start()
 #endif
 
   /* CSE 536: Verify if the kernel is untampered for secure boot */
-  //if (!is_secure_boot())
+  // if (!is_secure_boot())
   //{
-    /* Skip loading since we should have booted into a recovery kernel
-     * in the function is_secure_boot() */
-    //goto out;
+  /* Skip loading since we should have booted into a recovery kernel
+   * in the function is_secure_boot() */
+  // goto out;
   //}
 
   /* CSE 536: Load the NORMAL kernel binary (assuming secure boot passed). */
@@ -127,7 +127,7 @@ void start()
       continue;
     b.blockno = i;
     kernel_copy(NORMAL, &b);
-    memmove((void *)kernel_load_addr + ((i-4) * BSIZE), b.data, BSIZE);
+    memmove((void *)kernel_load_addr + ((i - 4) * BSIZE), b.data, BSIZE);
   }
 
   uint64 kernel_entry = find_kernel_entry_addr(NORMAL);
@@ -135,8 +135,12 @@ void start()
   /* CSE 536: Write the correct kernel entry point */
   w_mepc((uint64)kernel_entry);
 
-// out:
+  // out:
   /* CSE 536: Provide system information to the kernel. */
+  sys_info_ptr->bl_start = 0x80000000;
+  sys_info_ptr->bl_end = PHYSTOP;
+
+  sys_info_ptr->dr_start = (uint64)RAMDISK;
 
   /* CSE 536: Send the observed hash value to the kernel (using sys_info_ptr) */
 
