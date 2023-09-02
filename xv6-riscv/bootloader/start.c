@@ -44,6 +44,25 @@ void panic(char *s)
  * when hash verification fails. */
 void setup_recovery_kernel(void)
 {
+  uint64 kernel_load_addr = find_kernel_load_addr(RECOVERY);
+  uint64 kernel_binary_size = find_kernel_size(RECOVERY);
+
+  struct buf b;
+  uint64 num_blocks = kernel_binary_size / FSSIZE;
+  for (int i = 0; i < num_blocks; i++)
+  {
+    // ignoring the first 4 (4*1024) blocks as it is elf headers
+    if (i < 4)
+      continue;
+    b.blockno = i;
+    kernel_copy(RECOVERY, &b);
+    memmove((void *)kernel_load_addr + ((i - 4) * BSIZE), b.data, BSIZE);
+  }
+
+  uint64 kernel_entry = find_kernel_entry_addr(RECOVERY);
+
+  /* CSE 536: Write the correct kernel entry point */
+  w_mepc((uint64)kernel_entry);
 }
 
 /* CSE 536: Function verifies if NORMAL kernel is expected or tampered. */
@@ -55,13 +74,31 @@ bool is_secure_boot(void)
    * (simplified template provided below) */
   sha256_init(&sha256_ctx);
   struct buf b;
-  sha256_update(&sha256_ctx, (const unsigned char *)b.data, BSIZE);
+  uint64 kernel_load_addr = find_kernel_load_addr(NORMAL);
+  uint64 kernel_binary_size = find_kernel_size(NORMAL);
+  uint64 num_blocks = kernel_binary_size / FSSIZE;
+  for (int i = 0; i < num_blocks; i++)
+  {
+    // ignoring the first 4 (4*1024) blocks as it is elf headers
+    if (i < 4)
+      continue;
+    b.blockno = i;
+    kernel_copy(NORMAL, &b);
+    sha256_update(&sha256_ctx, (const unsigned char *)b.data, BSIZE);
+  }
   sha256_final(&sha256_ctx, sys_info_ptr->observed_kernel_measurement);
 
   /* Three more tasks required below:
    *  1. Compare observed measurement with expected hash
    *  2. Setup the recovery kernel if comparison fails
    *  3. Copy expected kernel hash to the system information table */
+  memcpy(sys_info_ptr->expected_kernel_measurement, trusted_kernel_hash, sizeof(sys_info_ptr->expected_kernel_measurement));
+
+  if (memcmp(sys_info_ptr->observed_kernel_measurement, sys_info_ptr->expected_kernel_measurement, sizeof(sys_info_ptr->expected_kernel_measurement)) != 0)
+  {
+    verification = false;
+  }
+
   if (!verification)
     setup_recovery_kernel();
 
@@ -107,12 +144,12 @@ void start()
 #endif
 
   /* CSE 536: Verify if the kernel is untampered for secure boot */
-  // if (!is_secure_boot())
-  //{
-  /* Skip loading since we should have booted into a recovery kernel
-   * in the function is_secure_boot() */
-  // goto out;
-  //}
+  if (!is_secure_boot())
+  {
+    /* Skip loading since we should have booted into a recovery kernel
+     * in the function is_secure_boot() */
+    goto out;
+  }
 
   /* CSE 536: Load the NORMAL kernel binary (assuming secure boot passed). */
   uint64 kernel_load_addr = find_kernel_load_addr(NORMAL);
@@ -135,10 +172,10 @@ void start()
   /* CSE 536: Write the correct kernel entry point */
   w_mepc((uint64)kernel_entry);
 
-  // out:
+out:
   /* CSE 536: Provide system information to the kernel. */
   sys_info_ptr->bl_start = (uint64)&_entry;
-  sys_info_ptr->bl_end = (uint64)&end;
+  sys_info_ptr->bl_end = (uint64)end;
 
   sys_info_ptr->dr_start = 0x80000000;
   sys_info_ptr->dr_end = PHYSTOP;
