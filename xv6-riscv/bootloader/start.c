@@ -81,13 +81,19 @@ bool is_secure_boot(void)
   {
     // ignoring the first 4 (4*1024) blocks as it is elf headers
     if (i < 4)
+    {
+      b.blockno = i;
+      kernel_copy(NORMAL, &b);
+      sha256_update(&sha256_ctx, (const unsigned char *)b.data, BSIZE);
       continue;
+    }
     b.blockno = i;
     kernel_copy(NORMAL, &b);
     memmove((void *)kernel_load_addr + ((i - 4) * BSIZE), b.data, BSIZE);
     sha256_update(&sha256_ctx, (const unsigned char *)b.data, BSIZE);
   }
   sha256_final(&sha256_ctx, sys_info_ptr->observed_kernel_measurement);
+  panic("Kernel hash: %s\n", sys_info_ptr->observed_kernel_measurement);
 
   /* Three more tasks required below:
    *  1. Compare observed measurement with expected hash
@@ -153,19 +159,19 @@ void start()
   }
 
   /* CSE 536: Load the NORMAL kernel binary (assuming secure boot passed). */
-  //uint64 kernel_load_addr = find_kernel_load_addr(NORMAL);
-  //uint64 kernel_binary_size = find_kernel_size(NORMAL);
+  // uint64 kernel_load_addr = find_kernel_load_addr(NORMAL);
+  // uint64 kernel_binary_size = find_kernel_size(NORMAL);
 
-  //struct buf b;
-  //uint64 num_blocks = kernel_binary_size / FSSIZE;
-  //for (int i = 0; i < num_blocks; i++)
+  // struct buf b;
+  // uint64 num_blocks = kernel_binary_size / FSSIZE;
+  // for (int i = 0; i < num_blocks; i++)
   //{
-    // ignoring the first 4 (4*1024) blocks as it is elf headers
-    //if (i < 4)
-      //continue;
-    //b.blockno = i;
-    //kernel_copy(NORMAL, &b);
-    //memmove((void *)kernel_load_addr + ((i - 4) * BSIZE), b.data, BSIZE);
+  //  ignoring the first 4 (4*1024) blocks as it is elf headers
+  // if (i < 4)
+  // continue;
+  // b.blockno = i;
+  // kernel_copy(NORMAL, &b);
+  // memmove((void *)kernel_load_addr + ((i - 4) * BSIZE), b.data, BSIZE);
   //}
 
   uint64 kernel_entry = find_kernel_entry_addr(NORMAL);
