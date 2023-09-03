@@ -40,6 +40,10 @@ uint64 find_kernel_load_addr(enum kernel ktype)
 
         return kernel_phdr->vaddr;
     }
+    else
+    {
+        return 0;
+    }
 }
 
 uint64 find_kernel_size(enum kernel ktype)
