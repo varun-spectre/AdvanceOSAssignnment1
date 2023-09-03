@@ -97,7 +97,7 @@ bool is_secure_boot(void)
   kernel_copy(NORMAL, &b);
   sha256_update(&sha256_ctx, (const unsigned char *)b.data, rem_size);
   sha256_final(&sha256_ctx, sys_info_ptr->observed_kernel_measurement);
-  panic("Kernel hash: %s\n", sys_info_ptr->observed_kernel_measurement);
+  // panic("Kernel hash: %s\n", sys_info_ptr->observed_kernel_measurement);
 
   /* Three more tasks required below:
    *  1. Compare observed measurement with expected hash
