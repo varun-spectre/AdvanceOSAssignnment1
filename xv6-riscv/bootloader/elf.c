@@ -45,16 +45,14 @@ uint64 find_kernel_load_addr(enum kernel ktype)
 uint64 find_kernel_size(enum kernel ktype)
 {
     /* CSE 536: Get kernel binary size from headers */
-    if ktype
-        == NORMAL
-        {
-            kernel_elfhdr = (struct elfhdr *)RAMDISK;
-        }
-    else if ktype
-        == RECOVERY
-        {
-            kernel_elfhdr = (struct elfhdr *)RECOVERYDISK;
-        }
+    if (ktype == NORMAL)
+    {
+        kernel_elfhdr = (struct elfhdr *)RAMDISK;
+    }
+    else if (ktype == RECOVERY)
+    {
+        kernel_elfhdr = (struct elfhdr *)RECOVERYDISK;
+    }
     uint64 start_of_section_headers = kernel_elfhdr->shoff;
     uint64 size_of_section_headers = kernel_elfhdr->shentsize * kernel_elfhdr->shnum;
     uint64 total_size = start_of_section_headers + size_of_section_headers;
@@ -65,16 +63,14 @@ uint64 find_kernel_size(enum kernel ktype)
 uint64 find_kernel_entry_addr(enum kernel ktype)
 {
     /* CSE 536: Get kernel entry point from headers */
-    if ktype
-        == NORMAL
-        {
-            kernel_elfhdr = (struct elfhdr *)RAMDISK;
-        }
-    else if ktype
-        == RECOVERY
-        {
-            kernel_elfhdr = (struct elfhdr *)RECOVERYDISK;
-        }
+    if (ktype == NORMAL)
+    {
+        kernel_elfhdr = (struct elfhdr *)RAMDISK;
+    }
+    else if (ktype == RECOVERY)
+    {
+        kernel_elfhdr = (struct elfhdr *)RECOVERYDISK;
+    }
     // return entry point
     return kernel_elfhdr->entry;
 }
