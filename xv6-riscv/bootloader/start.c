@@ -76,7 +76,7 @@ bool is_secure_boot(void)
   struct buf b;
   uint64 kernel_load_addr = find_kernel_load_addr(NORMAL);
   uint64 kernel_binary_size = find_kernel_size(NORMAL);
-  uint64 num_blocks = kernel_binary_size / FSSIZE;
+  uint64 num_blocks = kernel_binary_size / BSIZE;
   for (int i = 0; i < num_blocks; i++)
   {
     // ignoring the first 4 (4*1024) blocks as it is elf headers
@@ -92,6 +92,10 @@ bool is_secure_boot(void)
     memmove((void *)kernel_load_addr + ((i - 4) * BSIZE), b.data, BSIZE);
     sha256_update(&sha256_ctx, (const unsigned char *)b.data, BSIZE);
   }
+  uint64 rem_size = kernel_binary_size - BSIZE * num_blocks;
+  b.blockno = num_blocks;
+  kernel_copy(NORMAL, &b);
+  sha256_update(&sha256_ctx, (const unsigned char *)b.data, rem_size);
   sha256_final(&sha256_ctx, sys_info_ptr->observed_kernel_measurement);
   panic("Kernel hash: %s\n", sys_info_ptr->observed_kernel_measurement);
 
