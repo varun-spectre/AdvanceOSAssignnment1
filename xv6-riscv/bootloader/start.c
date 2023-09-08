@@ -103,7 +103,7 @@ bool is_secure_boot(void)
    *  1. Compare observed measurement with expected hash
    *  2. Setup the recovery kernel if comparison fails
    *  3. Copy expected kernel hash to the system information table */
-  // memcpy(sys_info_ptr->expected_kernel_measurement, trusted_kernel_hash, sizeof(sys_info_ptr->expected_kernel_measurement));
+  memcpy(sys_info_ptr->expected_kernel_measurement, trusted_kernel_hash, sizeof(sys_info_ptr->expected_kernel_measurement));
 
   if (memcmp(sys_info_ptr->observed_kernel_measurement, sys_info_ptr->expected_kernel_measurement, sizeof(sys_info_ptr->expected_kernel_measurement)) != 0)
   {
