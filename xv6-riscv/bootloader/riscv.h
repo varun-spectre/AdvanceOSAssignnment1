@@ -248,22 +248,6 @@ w_pmpaddr2(uint64 x)
                : "r"(x));
 }
 
-static inline void
-w_pmpaddr3(uint64 x)
-{
-  asm volatile("csrw pmpaddr3, %0"
-               :
-               : "r"(x));
-}
-
-static inline void
-w_pmpaddr4(uint64 x)
-{
-  asm volatile("csrw pmpaddr4, %0"
-               :
-               : "r"(x));
-}
-
 // use riscv's sv39 page table scheme.
 #define SATP_SV39 (8L << 60)
 
