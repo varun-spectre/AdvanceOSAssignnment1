@@ -103,12 +103,12 @@ bool is_secure_boot(void)
    *  1. Compare observed measurement with expected hash
    *  2. Setup the recovery kernel if comparison fails
    *  3. Copy expected kernel hash to the system information table */
- // memcpy(sys_info_ptr->expected_kernel_measurement, trusted_kernel_hash, sizeof(sys_info_ptr->expected_kernel_measurement));
+  // memcpy(sys_info_ptr->expected_kernel_measurement, trusted_kernel_hash, sizeof(sys_info_ptr->expected_kernel_measurement));
 
-  //if (memcmp(sys_info_ptr->observed_kernel_measurement, sys_info_ptr->expected_kernel_measurement, sizeof(sys_info_ptr->expected_kernel_measurement)) != 0)
-  //{
-   // verification = false;
-  //}
+  if (memcmp(sys_info_ptr->observed_kernel_measurement, sys_info_ptr->expected_kernel_measurement, sizeof(sys_info_ptr->expected_kernel_measurement)) != 0)
+  {
+    verification = false;
+  }
 
   if (!verification)
     setup_recovery_kernel();
@@ -144,17 +144,23 @@ void start()
 
 /* CSE 536: With kernelpmp1, isolate upper 10MBs using TOR */
 #if defined(KERNELPMP1)
-  //w_pmpaddr0(0x0ull);
-  //w_pmpcfg0(0x0);
+  // w_pmpaddr0(0x0ull);
+  // w_pmpcfg0(0x0);
   unsigned long long bootloader_start = 0x80000000ULL;
   unsigned long long top_address = bootloader_start + (117ULL * 1024 * 1024);
   unsigned long long pmpaddr0_value = (top_address >> 2);
   w_pmpaddr0(pmpaddr0_value);
-  w_pmpcfg0((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3)); 
+  w_pmpcfg0((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3));
 #endif
 
 /* CSE 536: With kernelpmp2, isolate 118-120 MB and 122-126 MB using NAPOT */
 #if defined(KERNELPMP2)
+  unsigned long long bootloader_start = 0x80000000ULL;
+  unsigned long long top_address = bootloader_start + (117ULL * 1024 * 1024);
+  unsigned long long pmpaddr0_value = (top_address >> 2);
+  w_pmpaddr0(pmpaddr0_value);
+  w_pmpcfg0((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3));
+
   w_pmpaddr0(0x0ull);
   w_pmpcfg0(0x0);
 #endif
