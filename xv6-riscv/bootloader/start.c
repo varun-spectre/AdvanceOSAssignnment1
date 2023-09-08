@@ -167,15 +167,15 @@ void start()
   size = size >> 3;
   unsigned long long pmpaddr1_value = base + size - 1;
   w_pmpaddr1(pmpaddr1_value);
-  w_pmpcfg0((1 << 8) | (1 << 9) | (1 << 10) | (1 << 11) | (1 << 12));
+  w_pmpcfg0((1 << 8) | (1 << 9) | (1 << 10) | (1 << 11) | (1 << 12) |(1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) );
 
-  unsigned long long base = bootloader_start + (126ULL * 1024 * 1024);
-  unsigned long long size = 2ULL * 1024 * 1024;
+  base = bootloader_start + (126ULL * 1024 * 1024);
+  size = 2ULL * 1024 * 1024;
   base = base >> 2;
   size = size >> 3;
   unsigned long long pmpaddr2_value = base + size - 1;
   w_pmpaddr2(pmpaddr2_value);
-  w_pmpcfg0((1 << 16) | (1 << 17) | (1 << 18) | (1 << 19) | (1 << 20));
+  w_pmpcfg0((1 << 16) | (1 << 17) | (1 << 18) | (1 << 19) | (1 << 20) | (1 << 8) | (1 << 9) | (1 << 10) | (1 << 11) | (1 << 12) |(1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) );
 #endif
 
   /* CSE 536: Verify if the kernel is untampered for secure boot */
