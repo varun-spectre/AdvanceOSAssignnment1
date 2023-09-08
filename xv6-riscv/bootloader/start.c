@@ -156,13 +156,26 @@ void start()
 /* CSE 536: With kernelpmp2, isolate 118-120 MB and 122-126 MB using NAPOT */
 #if defined(KERNELPMP2)
   unsigned long long bootloader_start = 0x80000000ULL;
-  unsigned long long top_address = bootloader_start + (117ULL * 1024 * 1024);
+  unsigned long long top_address = bootloader_start + (118ULL * 1024 * 1024);
   unsigned long long pmpaddr0_value = (top_address >> 2);
   w_pmpaddr0(pmpaddr0_value);
   w_pmpcfg0((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3));
 
-  w_pmpaddr0(0x0ull);
-  w_pmpcfg0(0x0);
+  unsigned long long base = bootloader_start + (120ULL * 1024 * 1024);
+  unsigned long long size = 2ULL * 1024 * 1024;
+  base = base >> 2;
+  size = size >> 3;
+  unsigned long long pmpaddr1_value = base + size - 1;
+  w_pmpaddr1(pmpaddr1_value);
+  w_pmpcfg0((1 << 8) | (1 << 9) | (1 << 10) | (1 << 11) | (1 << 12));
+
+  unsigned long long base = bootloader_start + (126ULL * 1024 * 1024);
+  unsigned long long size = 2ULL * 1024 * 1024;
+  base = base >> 2;
+  size = size >> 3;
+  unsigned long long pmpaddr2_value = base + size - 1;
+  w_pmpaddr2(pmpaddr2_value);
+  w_pmpcfg0((1 << 16) | (1 << 17) | (1 << 18) | (1 << 19) | (1 << 20));
 #endif
 
   /* CSE 536: Verify if the kernel is untampered for secure boot */
